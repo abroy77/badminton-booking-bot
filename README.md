@@ -12,3 +12,9 @@ needs a config.toml with the user email and passord in the working directory.
 ```
 python main.py
 ```
+## crontab
+edit by running `crontab -e` to open the editor.
+Place this line at the end to run the command every hour
+```
+0 * * * * uv run /home/roy/code/booking_bot/main.py 
+```
