@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from enum import StrEnum
 from selenium.webdriver.remote.webelement import WebElement
 from datetime import time as Time
+import argparse
 
 
 def str_to_time(time_str: str) -> Time:
@@ -63,10 +64,22 @@ def read_config(config_path: Path) -> dict:
 def datetime_to_str(dt: datetime) -> str:
     return dt.strftime("%a %d %b %H:%M")
 
-def main():
-    config = read_config(Path("config.toml"))
+def parse_args():
+    parser = argparse.ArgumentParser(description="Booking bot for badminton courts.")
+    parser.add_argument(
+        "config_filepath",
+        type=Path,
+        help="Path to the configuration TOML file.",
+    )
+    return parser.parse_args()
 
-    driver = webdriver.Chrome()
+def main():
+    args = parse_args()
+    config = read_config(Path(args.config_filepath))
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--window-size=400,400")
+    driver = webdriver.Chrome(options=options)
     driver.get("https://oxforduniversity.leisurecloud.net/Connect/mrmlogin.aspx")
     driver.implicitly_wait(3)
     login(
