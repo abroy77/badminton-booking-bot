@@ -61,8 +61,10 @@ def read_config(config_path: Path) -> dict:
     assert isinstance(config, dict), "Config file is not a valid TOML file"
     return config
 
+
 def datetime_to_str(dt: datetime) -> str:
     return dt.strftime("%a %d %b %H:%M")
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Booking bot for badminton courts.")
@@ -72,6 +74,7 @@ def parse_args():
         help="Path to the configuration TOML file.",
     )
     return parser.parse_args()
+
 
 def main():
     args = parse_args()
@@ -90,7 +93,9 @@ def main():
 
     dates_to_book = [datetime.today() + timedelta(days=delta) for delta in range(8)]
     # remove weekdays closer than 2 days from today
-    dates_to_book = [date for date in dates_to_book if date.weekday() >= 5 or (date - TODAY).days > 1]
+    dates_to_book = [
+        date for date in dates_to_book if date.weekday() >= 5 or (date - TODAY).days > 1
+    ]
     booked_courts = get_my_bookings(driver)
     for hall, dt in booked_courts:
         print(f"Existing booking at {hall} court at {datetime_to_str(dt)}")
@@ -109,13 +114,18 @@ def main():
                 print(f"No courts available for {hall} on {datetime_to_str(date)}")
                 continue
             book_court(driver, court_to_book[0])
-            booked_court_datetime = date.replace(hour=court_to_book[1].hour, minute=court_to_book[1].minute)
+            booked_court_datetime = date.replace(
+                hour=court_to_book[1].hour, minute=court_to_book[1].minute
+            )
             booked_dts.append(booked_court_datetime)
             print(f"Booked {hall} court at {datetime_to_str(booked_court_datetime)}")
             for booked_dt in booked_dts:
-                print(f"Existing booking at {hall} court at {datetime_to_str(booked_dt)}")
+                print(
+                    f"Existing booking at {hall} court at {datetime_to_str(booked_dt)}"
+                )
             # navigate back to the court
             go_to_court(driver, hall)
+
 
 def parse_court_name(text: str) -> Hall:
     if "Acer" in text:
@@ -124,6 +134,7 @@ def parse_court_name(text: str) -> Hall:
         return Hall.MAIN
     else:
         raise ValueError("Invalid court name")
+
 
 def correct_booking_year(booking_date: datetime) -> datetime:
     """Adjust the year of the booking date to be the present year.
@@ -136,25 +147,29 @@ def correct_booking_year(booking_date: datetime) -> datetime:
     Returns:
         datetime: adjusted datetime object
     """
-    
+
     if booking_date.month < TODAY.month:
         booking_date = booking_date.replace(year=TODAY.year + 1)
     else:
         booking_date = booking_date.replace(year=TODAY.year)
     return booking_date
 
+
 def parse_court_datetime(date_text: str, time_text: str) -> datetime:
     time_text = time_text.split("(")[0].strip()
     date_text = date_text.strip()
-    booking_date = datetime.strptime(f"{date_text} {time_text}", r"%a %d %b %H:%M") 
+    booking_date = datetime.strptime(f"{date_text} {time_text}", r"%a %d %b %H:%M")
     booking_date = correct_booking_year(booking_date)
     return booking_date
+
 
 def get_my_bookings(driver: WebDriver) -> list[tuple[Hall, datetime]]:
     if driver.current_url != MY_BOOKINGS:
         driver.get(MY_BOOKINGS)
     data_table = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "ctl00_MainContent_rptMain_ctl01_gvBookings"))
+        EC.presence_of_element_located(
+            (By.ID, "ctl00_MainContent_rptMain_ctl01_gvBookings")
+        )
     )
     # loop through the rows of the table
     # we know the table has these columns:
@@ -169,8 +184,9 @@ def get_my_bookings(driver: WebDriver) -> list[tuple[Hall, datetime]]:
         booked_courts.append((court_name, court_time))
     # go back to the homepage
     driver.get(HOMEPAGE_URL)
-    
+
     return booked_courts
+
 
 def get_free_courts(driver) -> list[tuple[WebElement, datetime]]:
     date = get_page_date(driver)
@@ -184,12 +200,15 @@ def get_free_courts(driver) -> list[tuple[WebElement, datetime]]:
         inner_element = court.find_element(By.TAG_NAME, "input")
         time_txt = inner_element.get_attribute("value").strip()
         time = datetime.strptime(time_txt, "%H:%M")
-        dt = date.replace(hour=time.hour, minute=time.minute) 
+        dt = date.replace(hour=time.hour, minute=time.minute)
         court_times.append((inner_element, dt))
 
     return court_times
 
-def pick_court_to_book(courts:list[tuple[WebDriver, datetime]], is_weekday: bool) -> tuple[WebDriver, datetime]:
+
+def pick_court_to_book(
+    courts: list[tuple[WebDriver, datetime]], is_weekday: bool
+) -> tuple[WebDriver, datetime]:
     # assume that all the courts are on the same day
     if is_weekday:
         preferences = TIME_PREFERENCES["weekdays"]
@@ -199,11 +218,11 @@ def pick_court_to_book(courts:list[tuple[WebDriver, datetime]], is_weekday: bool
     for desired_time in preferences:
         for court in courts:
             if court[1].time() == desired_time:
-
                 return court
     return None
 
-def book_court(driver: WebDriver,court: WebElement):
+
+def book_court(driver: WebDriver, court: WebElement):
     # navigate to booking page
     court.click()
     # get the element to book
@@ -213,7 +232,9 @@ def book_court(driver: WebDriver,court: WebElement):
     book_button.click()
     # check for completion
     _ = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "bookingConfirmedContent-content"))
+        EC.presence_of_element_located(
+            (By.CLASS_NAME, "bookingConfirmedContent-content")
+        )
     )
     # go home
     driver.get(HOMEPAGE_URL)
