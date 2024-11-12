@@ -3,18 +3,30 @@ a bot to help me book badminton courts so I don't need to stay up till midnight 
 Also helps book courts in case someone cancels them. 
 
 ## Deployment
-going to run this as a basic chron job
+going to run this as a basic cron job
 
 ## Requirements
-needs a config.toml with the user email and passord in the working directory.
+needs a config.toml with the user email and passord.
+The config file must have these elements:
+```
+[login-credentials]
+email = "user@email.com"
+password = "VerySecurePassword"
+```
+[uv](https://docs.astral.sh/uv/) is the recommended package manager to set up the dev environment. but anything that works with `pyproject.toml` is okay like `poetry`.
+
 
 ## run
+If you don't want to bother making a venv I would suggest installing [uv](https://docs.astral.sh/uv/)
+and running the following command. It will install python and other dependencies for you.
 ```
-python main.py
+uv run main.py </path/to/config>.toml
 ```
+To set up the project to work on it yourself run `uv sync`
+
 ## crontab
 edit by running `crontab -e` to open the editor.
 Place this line at the end to run the command every hour
 ```
-0 * * * * uv run /home/roy/code/booking_bot/main.py 
+1 * * * * uv run </path/to/main>.py </path/to/config.toml> >> </path/to/logfile.txt>
 ```
