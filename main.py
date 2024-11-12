@@ -43,7 +43,6 @@ MY_BOOKINGS = f"{ROOT_URL}/mrmViewMyBookings.aspx?showOption=1"
 
 TODAY = datetime.today()
 
-BADMINTON_ACER_LINK_TEXT = "Badminton ( Acer ) 55mins"
 COURT_LINK_TEXTS = {
     "acer": "Badminton ( Acer ) 55mins",
     "main": "Badminton ( Main ) 55mins",
@@ -83,7 +82,7 @@ def main():
     options.add_argument("--headless")
     options.add_argument("--window-size=400,400")
     driver = webdriver.Chrome(options=options)
-    driver.get("https://oxforduniversity.leisurecloud.net/Connect/mrmlogin.aspx")
+    driver.get(LOGIN_URL)
     driver.implicitly_wait(3)
     login(
         driver,
