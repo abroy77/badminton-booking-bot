@@ -28,5 +28,5 @@ To set up the project to work on it yourself run `uv sync`
 edit by running `crontab -e` to open the editor.
 Place this line at the end to run the command every hour
 ```
-1 * * * * uv run </path/to/main>.py </path/to/config.toml> >> </path/to/logfile.txt>
+1 * * * * </path/to/python/> </path/to/main>.py </path/to/config.toml> >> </path/to/logfile.txt>
 ```
