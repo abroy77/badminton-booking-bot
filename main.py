@@ -103,6 +103,10 @@ def main():
     for hall in Hall:
         go_to_court(driver, hall)
         for date in dates_to_book:
+            # check if we already have 2 bookings on this day. if so, continue
+            num_bookings_on_day = len([bd for bd in booked_dts if bd.date() == date.date()])
+            if num_bookings_on_day >=2:
+                continue
             navigate_to_date(driver, date)
             court_dts = get_free_courts(driver)
             # filter times when we already have a booking
