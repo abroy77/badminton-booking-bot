@@ -104,15 +104,24 @@ def main():
         go_to_court(driver, hall)
         for date in dates_to_book:
             # check if we already have 2 bookings on this day. if so, continue
-            num_bookings_on_day = len([bd for bd in booked_dts if bd.date() == date.date()])
+            bookings_on_day = [bd for bd in booked_dts if bd.date() == date.date()]
+            num_bookings_on_day = len(bookings_on_day)
             if num_bookings_on_day >=2:
                 continue
             navigate_to_date(driver, date)
             court_dts = get_free_courts(driver)
-            # filter times when we already have a booking
-            court_dts = [(court, dt) for court, dt in court_dts if dt not in booked_dts]
+            # filter times when we already have a booking 
+            # or those within 45  minutes of a booking
+            filtered_dts = []
+            for court, dt in court_dts:
+                conflicting = False
+                for booked_dt in booked_dts:
+                    if abs(booked_dt - dt) <= timedelta(minutes=45):
+                        conflicting = True
+                if not conflicting:
+                    filtered_dts.append((court, dt))
             # pick a court to book
-            court_to_book = pick_court_to_book(court_dts, is_weekday=date.weekday() < 5)
+            court_to_book = pick_court_to_book(filtered_dts, is_weekday=date.weekday() < 5)
             if court_to_book is None:
                 print(f"No courts available for {hall} on {datetime_to_str(date)}")
                 continue
