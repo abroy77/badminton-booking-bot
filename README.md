@@ -12,7 +12,12 @@ The config file must have these elements:
 [login-credentials]
 email = "user@email.com"
 password = "VerySecurePassword"
+[paths]
+booking_logs = "<path/to/booking/logs.txt>"
 ```
+The `booking_logs` item is a path to a text file where the booked courts are stored.
+This file is created if it does not exist, and overwritten if it does.
+
 [uv](https://docs.astral.sh/uv/) is the recommended package manager to set up the dev environment. but anything that works with `pyproject.toml` is okay like `poetry`.
 
 
