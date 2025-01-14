@@ -53,41 +53,44 @@ COURT_LINK_TEXTS = {
 Hall = StrEnum("Hall", "ACER MAIN")
 Availability = StrEnum("Availability", "AVAILABLE BOOKED MINE")
 
+
 class BookingLogs:
-    STR_FORMAT="%d/%m/%y %H:%M"
+    STR_FORMAT = "%d/%m/%y %H:%M"
     filepath: Path
     booked_times: list[datetime]
+
     def __init__(self, records_file: Path):
         now = datetime.now()
         self.filepath = records_file
-        self.booked_times=set([])
+        self.booked_times = set([])
         if self.filepath.exists():
-            with open(self.filepath, 'r') as f:
+            with open(self.filepath, "r") as f:
                 for line in f.readlines():
                     line = line.strip()
-                    dt = datetime.strptime(line,self.STR_FORMAT)
+                    dt = datetime.strptime(line, self.STR_FORMAT)
                     if dt > now:
                         # only add bookings that are in the future
                         self.booked_times.add(dt)
-            
 
     def write_records(self):
         # write the records to the file
         # sort the dates
         formatted_dates = (dt.strftime(self.STR_FORMAT) for dt in self.booked_times)
-        with open(self.filepath, 'w') as f:
+        with open(self.filepath, "w") as f:
             for dt in formatted_dates:
                 f.write(f"{dt}\n")
 
     def get_booking_dts(self):
         return self.booked_times.copy()
+
     def set_booking_dts(self, dts: Iterable[datetime]):
         # remove duplicates
         dts = sorted(list(set(dts)))
         self.booked_times = dts
-        
+
     def add_dt(self, dt: datetime):
-       self.booked_times.add(dt)
+        self.booked_times.add(dt)
+
 
 def read_config(config_path: Path) -> dict:
     assert config_path.exists(), f"Config file {config_path} does not exist"
@@ -141,7 +144,7 @@ def main():
     booked_dts.extend(booking_logs.booked_times)
     # remove duplicates
     booked_dts = list(set(booked_dts))
-    
+
     for hall in Hall:
         go_to_court(driver, hall)
         for date in dates_to_book:
@@ -149,12 +152,12 @@ def main():
             bookings_on_day = [bd for bd in booked_dts if bd.date() == date.date()]
             num_bookings_on_day = len(bookings_on_day)
             # max only book 2 times per day
-            if num_bookings_on_day >=2:
+            if num_bookings_on_day >= 2:
                 continue
             # go to the page and look for courts
             navigate_to_date(driver, date)
             court_dts = get_free_courts(driver)
-            # filter times when we already have a booking 
+            # filter times when we already have a booking
             # or those within 45  minutes of a booking
             filtered_dts = []
             for court, dt in court_dts:
@@ -165,9 +168,13 @@ def main():
                 if not conflicting:
                     filtered_dts.append((court, dt))
             # pick a court to book
-            court_to_book = pick_court_to_book(filtered_dts, is_weekday=date.weekday() < 5)
+            court_to_book = pick_court_to_book(
+                filtered_dts, is_weekday=date.weekday() < 5
+            )
             if court_to_book is None:
-                print(f"No courts available for {hall} on {datetime_to_str(date, True)}")
+                print(
+                    f"No courts available for {hall} on {datetime_to_str(date, True)}"
+                )
                 continue
             book_court(driver, court_to_book[0])
             booked_court_datetime = date.replace(
@@ -181,8 +188,6 @@ def main():
     # store the booked_courts
     booking_logs.set_booking_dts(booked_dts)
     booking_logs.write_records()
-    
-    
 
 
 def parse_court_name(text: str) -> Hall:
