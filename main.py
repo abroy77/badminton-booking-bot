@@ -48,6 +48,7 @@ HOMEPAGE_URL = f"{ROOT_URL}/memberHomePage.aspx"
 MY_BOOKINGS = f"{ROOT_URL}/mrmViewMyBookings.aspx?showOption=1"
 
 TODAY = datetime.today()
+NOW = datetime.now()
 
 COURT_LINK_TEXTS = {
     "acer": "Badminton ( Acer ) 55mins",
@@ -170,6 +171,9 @@ def main():
                 for booked_dt in booked_dts:
                     if abs(booked_dt - dt) <= timedelta(minutes=45):
                         conflicting = True
+                # also filter out if they're less than 12 hours away from now
+                if abs(dt - NOW) <= timedelta(hours=12):
+                    conflicting = True
                 if not conflicting:
                     filtered_dts.append((court, dt))
             # pick a court to book
