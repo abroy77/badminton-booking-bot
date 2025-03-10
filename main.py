@@ -27,7 +27,12 @@ def str_to_time(time_str: str) -> Time:
 
 
 TIME_PREFERENCES = {
-    "weekdays": [str_to_time("07:00"), str_to_time("06:30")],
+    "weekdays": [
+        str_to_time("06:30"),
+        str_to_time("07:30"),
+        str_to_time("07:00"),
+        str_to_time("08:00"),
+    ],
     "weekends": [
         str_to_time("07:00"),
         str_to_time("07:30"),
